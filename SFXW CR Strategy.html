@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StratFinx Wealth - Costa Rican Investment Strategy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-blue: #004894;
+            --teal: #00a1ae;
+            --off-white: #f6f8f7;
+            --light-gray: #e9eaf0;
+            --dark-bg: #0a0e1a;
+            --darker-bg: #050810;
+            --card-bg: rgba(70, 159, 173, 0.1);
+            --glow-blue: #00d9ff;
+            --glow-teal: #00ffcc;
+            --success-green: #00ff88;
+            --warning-red: #ff4444;
+            --gradient-primary: linear-gradient(135deg, #00488e 0%, #469fad 100%);
+            --gradient-dark: linear-gradient(135deg, #0a0e1a 0%, #050810 100%);
+            --gradient-glow: linear-gradient(135deg, rgba(0, 217, 255, 0.2) 0%, rgba(0, 255, 204, 0.2) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-dark);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--off-white);
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            background: var(--dark-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(70, 159, 173, 0.3);
+            display: none;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide-header {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 2rem;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-glow);
+            opacity: 0.5;
+        }
+
+        .slide-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--dark-bg);
+            color: var(--off-white);
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 1rem;
+            right: 2rem;
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            box-shadow: 0 0 20px rgba(70, 159, 173, 0.5);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--off-white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(70, 159, 173, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(70, 159, 173, 0.5);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Additional padding for slides starting from 2 to accommodate
+           the bottom‑left logo and disclaimer. Without this the
+           disclaimer could overlap long content at the bottom of the
+           slide. Feel free to adjust the padding amount if necessary. */
+        .slide:nth-of-type(n+2) .slide-content {
+            padding-bottom: 6rem;
+        }
+
+        /* Styling for the bottom‑left logo and disclaimer that appears
+           on slides 2 and beyond. The logo and text are aligned
+           horizontally and use a small font size to remain unobtrusive. */
+        .bottom-left-placeholder {
+            position: absolute;
+            bottom: 1rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.7;
+        }
+        .bottom-left-placeholder img {
+            height: 40px;
+            width: auto;
+        }
+        .bottom-left-placeholder span {
+            font-size: 0.7rem;
+            color: var(--light-gray);
+        }
+
+        /* Hide original bottom‑right logo placeholders on slides 2 and beyond */
+        .slide:nth-of-type(n+2) div[style*="right: 2rem"] {
+            display: none !important;
+        }
+
+        .slide-indicator {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(10, 14, 26, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            color: var(--off-white);
+            z-index: 1000;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+            box-shadow: 0 0 20px rgba(70, 159, 173, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--off-white);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--teal);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .date {
+            margin-top: 1rem;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .benefit-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(70, 159, 173, 0.3);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--glow-teal);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 204, 0.5));
+        }
+
+        .benefit-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--off-white);
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .comparison-column {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .comparison-negative {
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.1), rgba(255, 68, 68, 0.05));
+            border: 2px solid var(--warning-red);
+            backdrop-filter: blur(10px);
+        }
+
+        .comparison-positive {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+            border: 2px solid var(--success-green);
+            backdrop-filter: blur(10px);
+        }
+
+        .comparison-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-list {
+            text-align: left;
+            list-style: none;
+        }
+
+        .comparison-list li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .comparison-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .comparison-negative li::before {
+            color: var(--warning-red);
+        }
+
+        .comparison-positive li::before {
+            color: var(--success-green);
+        }
+
+        .tax-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+        }
+
+        .tax-bar {
+            text-align: center;
+            flex: 1;
+        }
+
+        .tax-bar-visual {
+            height: 80px;
+            margin: 1rem 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tax-30 {
+            background: linear-gradient(to top, var(--warning-red), #ff6666);
+            height: 80px;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .tax-15 {
+            background: linear-gradient(to top, var(--deep-blue), var(--teal));
+            height: 40px;
+            box-shadow: 0 0 20px rgba(70, 159, 173, 0.4);
+        }
+
+        .protection-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .protection-section h3 {
+            margin-bottom: 1rem;
+            color: var(--dark-blue);
+        }
+
+        .protection-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .protection-section li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .protection-section li::before {
+            content: '🛡️';
+            position: absolute;
+            left: 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(70, 159, 173, 0.2);
+            border: 1px solid rgba(70, 159, 173, 0.3);
+        }
+
+        .comparison-table th {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(70, 159, 173, 0.2);
+            color: var(--off-white);
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(70, 159, 173, 0.05);
+        }
+
+        .highlight-box {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 0 30px rgba(70, 159, 173, 0.3);
+            border: 1px solid rgba(70, 159, 173, 0.4);
+        }
+
+        .example-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+        }
+
+        .example-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .example-side {
+            background: rgba(10, 14, 26, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(70, 159, 173, 0.2);
+        }
+
+        .example-side.negative {
+            border-left: 4px solid var(--warning-red);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+        }
+
+        .example-side.positive {
+            border-left: 4px solid var(--success-green);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(70, 159, 173, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(70, 159, 173, 0.4), 0 0 40px rgba(0, 217, 255, 0.2);
+            border-color: var(--glow-blue);
+        }
+
+        .portfolio-header {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(70, 159, 173, 0.3);
+        }
+
+        .fund-list {
+            text-align: left;
+            margin: 1rem 0;
+        }
+
+        .fund-item {
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .process-step {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .process-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(70, 159, 173, 0.3);
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--glow-teal);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem auto;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(70, 159, 173, 0.4);
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--off-white);
+        }
+
+        .cta-container {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--glow-blue), var(--glow-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .contact-info {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            border: 1px solid rgba(70, 159, 173, 0.3);
+            box-shadow: 0 0 30px rgba(70, 159, 173, 0.2);
+        }
+
+        .cta-benefits {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+        }
+
+        .cta-benefit {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: var(--success-green);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .cta-benefit::before {
+            content: '✓';
+            margin-right: 0.5rem;
+            font-weight: bold;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.5));
+        }
+
+        .cta-button {
+            background: var(--gradient-primary);
+            color: var(--off-white);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(70, 159, 173, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(70, 159, 173, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .disclosure-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+        
+        .performance-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(70, 159, 173, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .performance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(70, 159, 173, 0.4);
+        }
+        
+        .performance-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .performance-bar {
+            width: 60px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(70, 159, 173, 0.3);
+            position: relative;
+        }
+        
+        .performance-data {
+            font-size: 0.9rem;
+        }
+        
+        .cagr-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--light-gray);
+        }
+        
+        .cagr-item strong {
+            color: var(--glow-teal);
+            font-weight: 700;
+        }
+
+        .large-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--glow-blue);
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .savings-highlight {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+            border: 2px solid var(--success-green);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 1rem 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        /* Glowing animation for special elements */
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(70, 159, 173, 0.5); }
+            50% { text-shadow: 0 0 30px rgba(70, 159, 173, 0.8), 0 0 40px rgba(0, 217, 255, 0.3); }
+        }
+        
+        .glow-text {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        /* Futuristic grid background */
+        .slide::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(70, 159, 173, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(70, 159, 173, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .slide-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                width: 98%;
+                height: 95vh;
+            }
+
+            .slide-content {
+                padding: 1rem;
+            }
+
+            .benefits-grid,
+            .comparison-container,
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    <script>
+        const logo = "https://raw.githubusercontent.com/stratfinx/presentations/main/SFXW%20Logo%20Transparent.png";
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoEl = document.getElementById("logo");
+            if (logoEl && logo) {
+                logoEl.src = logo;
+            } else {
+                console.warn("Logo element or logo URL not found.");
+            }
+        });
+    </script>
+
+    <script>
+        const hexLogo = "https://raw.githubusercontent.com/stratfinx/presentations/main/SFXW%20Hex%20Logo%20Transparent.png";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoEls = document.querySelectorAll("[data-hex-logo]");
+            if (logoEls.length && hexLogo) {
+                logoEls.forEach(el => el.src = hexLogo);
+            } else {
+                console.warn("Hex logo elements or logo URL not found.");
+            }
+        });
+    </script>
+
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-indicator">
+            <span id="current-slide">1</span> / 8
+        </div>
+
+        <!-- Slide 1: Title Slide -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1>Advantages of Investing for Costa Rican Individuals</h1>
+                <div class="subtitle">Tax-Efficient Investment Strategies</div>
+                <div class="date" id="presentation-date"></div>
+            </div>
+            <div class="slide-content">
+                <div style="text-align: center; padding: 3rem 0; position: relative;">
+                    <div style="margin: 0 auto 2rem;">
+                        <img id="logo" alt="StratFinx Logo"
+                             style="height: 150px; width: auto; 
+                                    filter: drop-shadow(0 0 20px rgba(70, 159, 173, 0.5)); 
+                                    display: block; margin: 0 auto;">
+                    </div>
+                    <div class="glow-lines" style="position: absolute; width: 100%; height: 2px; background: var(--gradient-primary); top: 63%; left: 0; opacity: 0.5; box-shadow: 0 0 20px var(--glow-blue);"></div>
+                    <h2 style="margin-bottom: 2rem; background: linear-gradient(45deg, var(--glow-blue), var(--glow-teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; visibility: hidden">StratFinx Wealth</h2>
+                    <p style="font-size: 1.2rem; color: var(--light-gray); max-width: 600px; margin: 0 auto; line-height: 1.6; opacity: 0.9;">
+                        Unlock global investment opportunities with tax-efficient strategies designed specifically for Costa Rican investors.
+                    </p>
+                </div>
+            </div>
+            <div class="slide-number">1</div>
+        </div>
+
+        <!-- Slide 2: Regulatory Disclosures -->
+        <div class="slide" style="position: relative; overflow: hidden;">
+            <div class="slide-header">
+                <h1>Regulatory Information &amp; Disclaimers</h1>
+            </div>
+            <div class="slide-content" style="background: var(--darker-bg); display: flex; flex-direction: column; justify-content: center;">
+                <div style="background: rgba(70, 159, 173, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(70, 159, 173, 0.2);">
+                    <div class="disclosure-text" style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; color: var(--off-white);">
+                        This presentation is for informational purposes only and does not constitute an offer, solicitation, advice, or recommendation to buy or sell investments. Investing involves risk, including possible loss of principal. Past performance is not indicative of future results and should not be relied upon as a basis for investment decisions. The performance data shown herein represents past performance and does not guarantee future results. StratFinx Wealth is the DBA of SFX Asset &amp; Wealth LLC, a registered investment adviser in Illinois. Registration does not imply a certain level of skill or training.
+                    </div>
+                </div>
+
+                <div style="position: absolute; bottom: 1.8rem; left: 2rem; display: flex; align-items: center; gap: 0.6rem; z-index: 5;">
+                    <img data-hex-logo alt="StratFinx Hex Logo" style="height: 36px; width: auto; opacity: 0.85;">
+                    <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">For informational purposes only – Not investment advice.</span>
+                </div>
+
+                <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..." alt="StratFinx" style="height: 60px; width: auto; opacity: 0.7;">
+                </div>
+            </div>
+            <div class="slide-number">2</div>
+        </div>
+
+        <!-- Slide 3: Key Benefits Overview -->
+        <div class="slide" style="position: relative; overflow: hidden;">
+            <div class="slide-header">
+                <h1>Four Pillars of Your Investment Strategy</h1>
+            </div>
+            <div class="slide-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🌍</div>
+                        <div class="benefit-title">Tax-free foreign income</div>
+                        <p style="color: var(--light-gray);">Costa Rica's territorial tax system exempts foreign income from taxes</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📊</div>
+                        <div class="benefit-title">Broad diversification</div>
+                        <p style="color: var(--light-gray);">Access U.S. and international markets across equities and bonds</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-title">Lower dividend withholding</div>
+                        <p style="color: var(--light-gray);">Reduce U.S. dividend withholding by half to 15%</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">👨‍👩‍👧‍👦</div>
+                        <div class="benefit-title">Avoid U.S. estate tax exposure</div>
+                        <p style="color: var(--light-gray);">Pass down your assets free of U.S. tax</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 1.8rem; left: 2rem; display: flex; align-items: center; gap: 0.6rem; z-index: 5;">
+                <img data-hex-logo alt="StratFinx Hex Logo" style="height: 36px; width: auto; opacity: 0.85;">
+                <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">For informational purposes only – Not investment advice.</span>
+            </div>
+
+            <div class="slide-number">3</div>
+
+            <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..." alt="StratFinx" style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>
+
+        <!-- Slide 4: Tax-Free Growth -->
+        <div class="slide" style="position: relative; overflow-y: auto;">
+            <div class="slide-header">
+                <h1>Zero-Tax Capital Gains on Your Growth</h1>
+                <div class="subtitle">Double Tax Advantage for Costa Rican Investors</div>
+            </div>
+
+            <div class="slide-content">
+                <div style="display: flex; justify-content: space-between; gap: 2rem; margin: 2rem 0;">
+                    <div class="benefit-card" style="flex: 1;">
+                        <div class="benefit-icon">🇺🇸</div>
+                        <div class="benefit-title">No U.S. Taxes</div>
+                        <p style="color: var(--light-gray);">You're not a U.S. person, so no U.S. capital gains tax</p>
+                    </div>
+                    <div class="benefit-card" style="flex: 1;">
+                        <div class="benefit-icon">🇨🇷</div>
+                        <div class="benefit-title">No Costa Rican Taxes</div>
+                        <p style="color: var(--light-gray);">Foreign-source income exempt under territorial system</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; margin: 1rem 0;">
+                    <div style="font-size: 3rem; color: var(--glow-teal); text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);">⬇ ⬇</div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+                            border: 3px solid var(--success-green);
+                            padding: 2rem;
+                            border-radius: 20px;
+                            text-align: center;
+                            margin: 1rem 0;
+                            backdrop-filter: blur(10px);
+                            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--success-green);">💰</div>
+                    <h3 style="font-size: 2rem; margin-bottom: 1rem; color: var(--success-green);">Keep 100% of Capital Gains</h3>
+                    <p style="font-size: 1.3rem; color: var(--off-white); margin: 0;">Every dollar of appreciation stays in your pocket</p>
+                </div>
+
+                <div class="highlight-box" style="background: rgba(255, 165, 0, 0.1);
+                            border: 1px solid rgba(255, 165, 0, 0.3);
+                            margin-top: 2rem;">
+                    <p style="margin: 0;"><strong>Note:</strong> Dividends are subject to withholding tax (see next slide),
+                        but all capital appreciation grows completely tax-free</p>
+                </div>
+
+                <!-- ✅ Footer block INSIDE scrollable content, padded from nav -->
+                <div style="margin-top: 3rem; padding-bottom: 5rem;
+                            display: flex; align-items: center; gap: 0.6rem; justify-content: flex-start;">
+                    <img data-hex-logo alt="StratFinx Hex Logo"
+                        style="height: 36px; width: auto; opacity: 0.85;">
+                    <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">
+                        For informational purposes only – Not investment advice.
+                    </span>
+                </div>
+            </div>
+
+            <div class="slide-number">4</div>
+
+            <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                    alt="StratFinx"
+                    style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>
+
+        <!-- Slide 5: Dividend Tax Comparison -->
+        <div class="slide" style="position: relative; overflow-y: auto;">
+            <div class="slide-header">
+                <h1>How Much You Really Keep: Dividend Withholding Comparison</h1>
+                <div class="subtitle">$100,000 investment @ 2.5% dividend yield = $2,500 annual dividend</div>
+            </div>
+
+            <div class="slide-content">
+                <div class="comparison-container" style="margin-top: 2rem;">
+                    <div class="comparison-column comparison-positive">
+                        <div class="comparison-title">StratFinx Wealth Strategy</div>
+                        <div style="font-size: 0.9rem; color: var(--light-gray); margin-bottom: 1rem;">15% Dividend Withholding</div>
+                        <div style="text-align: center; margin: 2rem 0;">
+                            <div style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--light-gray);">
+                                Gross Dividend: <strong style="color: var(--off-white);">$2,500</strong>
+                            </div>
+                            <div style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--warning-red);">
+                                Withheld: <strong>-$375</strong>
+                            </div>
+                            <div class="large-number"
+                                style="color: var(--success-green); border: 3px solid var(--success-green);
+                                        padding: 1rem; border-radius: 10px;">YOU KEEP: $2,125</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; margin-top: 1rem; color: var(--success-green);">
+                                (85%)
+                            </div>
+                            <div style="margin-top: 1rem; color: var(--success-green); font-size: 2rem;">✓</div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-column comparison-negative">
+                        <div class="comparison-title">US ETF Strategy</div>
+                        <div style="font-size: 0.9rem; color: var(--light-gray); margin-bottom: 1rem;">30% Dividend Withholding</div>
+                        <div style="text-align: center; margin: 2rem 0;">
+                            <div style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--light-gray);">
+                                Gross Dividend: <strong style="color: var(--off-white);">$2,500</strong>
+                            </div>
+                            <div style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--warning-red);">
+                                Withheld: <strong>-$750</strong>
+                            </div>
+                            <div class="large-number"
+                                style="color: var(--warning-red); border: 3px solid var(--warning-red);
+                                        padding: 1rem; border-radius: 10px;">You Keep: $1,750</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; margin-top: 1rem; color: var(--warning-red);">
+                                (70%)
+                            </div>
+                            <div style="margin-top: 1rem; color: var(--warning-red); font-size: 2rem;">⚠️</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 2rem;">
+                    <div class="large-number" style="color: var(--light-gray);">
+                        Annual Difference: $375 savings annually
+                    </div>
+                </div>
+
+                <!-- ✅ Footer block inside scrollable area -->
+                <div style="margin-top: 3rem; padding-bottom: 5rem;
+                            display: flex; align-items: center; gap: 0.6rem;">
+                    <img data-hex-logo alt="StratFinx Hex Logo"
+                        style="height: 36px; width: auto; opacity: 0.85;">
+                    <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">
+                        For informational purposes only – Not investment advice.
+                    </span>
+                </div>
+            </div>
+
+            <div class="slide-number">5</div>
+
+            <!-- Top-right corner logo (unchanged) -->
+            <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/"
+                    alt="StratFinx" style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>
+
+
+        <!-- Slide 6: 20-Year Comparison - Column Charts -->
+        <div class="slide" style="position: relative; overflow-y: auto;">
+            <div class="slide-header">
+                <h1>The Real Cost of Higher Taxes: 20-Year Impact</h1>
+                <div class="subtitle">$100,000 initial investment, 10.5% annual return (8% appreciation + 2.5% dividends)</div>
+            </div>
+
+            <div class="slide-content">
+                <div style="display: flex; gap: 2rem; margin: 2rem 0;">
+                    <!-- StratFinx Wealth Strategy -->
+                    <div style="flex: 1; background: rgba(0, 255, 136, 0.05); border-radius: 15px; padding: 1.5rem; border: 2px solid var(--success-green);">
+                        <h3 style="color: #f6f8f7; font-size: 1.4rem; margin-bottom: 1rem; text-align: center;">
+                            StratFinx Wealth Strategy
+                        </h3>
+
+                        <div style="position: relative; margin-bottom: 1rem;">
+                            <svg width="100%" height="180" viewBox="0 0 350 180">
+                                <defs>
+                                    <marker id="ucitsArrow" markerWidth="10" markerHeight="8" refX="0" refY="4" orient="auto">
+                                        <polygon points="0 0, 10 4, 0 8" fill="var(--success-green)" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Y-axis -->
+                                <line x1="30" y1="20" x2="30" y2="150" stroke="rgba(0, 255, 136, 0.3)" stroke-width="1" />
+                                <text x="25" y="25" fill="var(--success-green)" font-size="10" text-anchor="end">$700k</text>
+                                <text x="25" y="65" fill="var(--success-green)" font-size="10" text-anchor="end">$400k</text>
+                                <text x="25" y="105" fill="var(--success-green)" font-size="10" text-anchor="end">$200k</text>
+                                <text x="25" y="145" fill="var(--success-green)" font-size="10" text-anchor="end">$100k</text>
+
+                                <!-- X-axis -->
+                                <line x1="30" y1="150" x2="320" y2="150" stroke="rgba(0, 255, 136, 0.3)" stroke-width="1" />
+
+                                <!-- Columns -->
+                                <rect x="40" y="146" width="25" height="4" fill="var(--success-green)" opacity="0.8" />
+                                <rect x="85" y="130" width="25" height="20" fill="var(--success-green)" opacity="0.8" />
+                                <rect x="130" y="106" width="25" height="44" fill="var(--success-green)" opacity="0.8" />
+                                <rect x="175" y="82" width="25" height="68" fill="var(--success-green)" opacity="0.8" />
+                                <rect x="220" y="62" width="25" height="88" fill="var(--success-green)" opacity="0.8" />
+                                <rect x="265" y="42" width="25" height="108" fill="var(--success-green)" opacity="0.8" />
+
+                                <!-- Labels -->
+                                <text x="52" y="140" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$100K</text>
+                                <text x="97" y="123" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$147K</text>
+                                <text x="142" y="99" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$216K</text>
+                                <text x="187" y="75" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$318K</text>
+                                <text x="232" y="55" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$468K</text>
+                                <text x="277" y="35" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$688K</text>
+
+                                <!-- Years -->
+                                <text x="52" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">0</text>
+                                <text x="97" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">4</text>
+                                <text x="142" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">8</text>
+                                <text x="187" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">12</text>
+                                <text x="232" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">16</text>
+                                <text x="277" y="165" fill="var(--success-green)" font-size="9" text-anchor="middle">20</text>
+                            </svg>
+                        </div>
+
+                        <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
+                            <div><strong>Final Value:</strong> <span style="color: var(--success-green);">$688,206</span></div>
+                            <div><strong>Estate Tax:</strong> <span style="color: var(--success-green);">$0</span></div>
+                            <div style="border-top: 2px solid var(--success-green); padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <strong>Net to Heirs: $688,206</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- US ETF Strategy -->
+                    <div style="flex: 1; background: rgba(255, 68, 68, 0.05); border-radius: 15px; padding: 1.5rem; border: 2px solid var(--warning-red);">
+                        <h3 style="color: #f6f8f7; font-size: 1.4rem; margin-bottom: 1rem; text-align: center;">
+                            US ETF Strategy
+                        </h3>
+
+                        <div style="position: relative; margin-bottom: 1rem;">
+                            <svg width="100%" height="180" viewBox="0 0 350 180">
+                                <defs>
+                                    <marker id="usArrow" markerWidth="10" markerHeight="8" refX="0" refY="4" orient="auto">
+                                        <polygon points="0 0, 10 4, 0 8" fill="var(--warning-red)" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Y-axis -->
+                                <line x1="30" y1="20" x2="30" y2="150" stroke="rgba(255, 68, 68, 0.3)" stroke-width="1" />
+                                <text x="25" y="25" fill="var(--warning-red)" font-size="10" text-anchor="end">$700k</text>
+                                <text x="25" y="65" fill="var(--warning-red)" font-size="10" text-anchor="end">$400k</text>
+                                <text x="25" y="105" fill="var(--warning-red)" font-size="10" text-anchor="end">$200k</text>
+                                <text x="25" y="145" fill="var(--warning-red)" font-size="10" text-anchor="end">$100k</text>
+
+                                <!-- X-axis -->
+                                <line x1="30" y1="150" x2="320" y2="150" stroke="rgba(255, 68, 68, 0.3)" stroke-width="1" />
+
+                                <!-- Columns -->
+                                <rect x="40" y="146" width="25" height="4" fill="var(--warning-red)" opacity="0.8" />
+                                <rect x="85" y="132" width="25" height="18" fill="var(--warning-red)" opacity="0.8" />
+                                <rect x="130" y="110" width="25" height="40" fill="var(--warning-red)" opacity="0.8" />
+                                <rect x="175" y="90" width="25" height="60" fill="var(--warning-red)" opacity="0.8" />
+                                <rect x="220" y="70" width="25" height="80" fill="var(--warning-red)" opacity="0.8" />
+                                <rect x="265" y="50" width="25" height="100" fill="var(--warning-red)" opacity="0.8" />
+
+                                <!-- Labels -->
+                                <text x="52" y="140" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$100K</text>
+                                <text x="97" y="125" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$145K</text>
+                                <text x="142" y="103" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$210K</text>
+                                <text x="187" y="83" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$305K</text>
+                                <text x="232" y="63" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$443K</text>
+                                <text x="277" y="43" fill="white" font-size="9" text-anchor="middle" font-weight="bold">$643K</text>
+
+                                <!-- Years -->
+                                <text x="52" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">0</text>
+                                <text x="97" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">4</text>
+                                <text x="142" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">8</text>
+                                <text x="187" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">12</text>
+                                <text x="232" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">16</text>
+                                <text x="277" y="165" fill="var(--warning-red)" font-size="9" text-anchor="middle">20</text>
+                            </svg>
+                        </div>
+
+                        <div style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
+                            <div><strong>Final Value:</strong> <span style="color: var(--warning-red);">$642,822</span></div>
+                            <div><strong>Estate Tax:</strong> <span style="color: var(--warning-red);">$186,444</span></div>
+                            <div style="border-top: 2px solid var(--warning-red); padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <strong>Net to Heirs: $456,378</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="savings-highlight" style="margin-top: 1rem; padding: 1.5rem;">
+                    <h3 style="color: var(--success-green); font-size: 1.3rem; margin-bottom: 2rem; text-align: center;">
+                        TOTAL STRATFINX ADVANTAGE: $231,828
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                        <div style="font-size: 0.9rem;"><strong>Portfolio Difference:</strong> $45,384</div>
+                        <div style="font-size: 0.9rem;"><strong>Estate Tax Savings:</strong> $186,444</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.4); padding: 1rem; border-radius: 10px; margin-top: 1rem; text-align: center;">
+                    <p style="margin: 0; color: var(--off-white); font-size: 0.9rem;">
+                        <strong>Note:</strong> U.S. estate tax for non-resident aliens is up to 40% on amounts over $60,000 (progressive rates apply).
+                    </p>
+                </div>
+
+                <!-- ✅ Footer block -->
+                <div style="margin-top: 3rem; padding-bottom: 5rem; display: flex; align-items: center; gap: 0.6rem;">
+                    <img data-hex-logo alt="StratFinx Hex Logo" style="height: 36px; width: auto; opacity: 0.85;">
+                    <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">
+                        For informational purposes only – Not investment advice.
+                    </span>
+                </div>
+            </div>
+
+            <div class="slide-number">6</div>
+
+            <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..." alt="StratFinx"
+                    style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>
+
+        <!-- Slide 7: Historical Market Performance -->
+        <div class="slide" style="position: relative; overflow-y: auto;">
+            <div class="slide-header">
+                <h1>Global Market Performance: Last 10 Years</h1>
+            </div>
+            <div class="slide-content">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem;">
+                    <!-- ===== S&P 500 ===== -->
+                    <div class="performance-card">
+                        <h3 style="color: var(--glow-blue); text-align: center; margin-bottom: 0.5rem;">S&amp;P 500</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem; text-align: center; margin-bottom: 1rem;">U.S. Large Cap Stocks - 500 leading American companies</p>
+                        <div class="performance-chart">
+                            <svg width="280" height="160" style="margin: 0.5rem 0;">
+                                <defs>
+                                    <linearGradient id="sp500Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#00488e;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#00d9ff;stop-opacity:1" />
+                                    </linearGradient>
+                                    <marker id="sp500arrow" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                                        <polygon points="0 0, 8 3, 0 6" fill="#00ff88" />
+                                    </marker>
+                                </defs>
+                                <line x1="30" y1="20" x2="30" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <line x1="30" y1="130" x2="250" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <text x="25" y="25" fill="var(--light-gray)" font-size="10" text-anchor="end">350</text>
+                                <text x="25" y="40" fill="var(--light-gray)" font-size="10" text-anchor="end">300</text>
+                                <text x="25" y="55" fill="var(--light-gray)" font-size="10" text-anchor="end">250</text>
+                                <text x="25" y="70" fill="var(--light-gray)" font-size="10" text-anchor="end">200</text>
+                                <text x="25" y="85" fill="var(--light-gray)" font-size="10" text-anchor="end">150</text>
+                                <text x="25" y="100" fill="var(--light-gray)" font-size="10" text-anchor="end">100</text>
+                                <text x="25" y="115" fill="var(--light-gray)" font-size="10" text-anchor="end">50</text>
+                                <text x="25" y="130" fill="var(--light-gray)" font-size="10" text-anchor="end">0</text>
+                                <rect x="35" y="100" width="15" height="30" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="55" y="98" width="15" height="32" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="75" y="91" width="15" height="39" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="95" y="93" width="15" height="37" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="115" y="85" width="15" height="45" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="135" y="77" width="15" height="53" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="155" y="62" width="15" height="68" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="175" y="74" width="15" height="56" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="195" y="59" width="15" height="71" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="215" y="44" width="15" height="86" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <rect x="235" y="37" width="15" height="93" fill="url(#sp500Grad)" opacity="0.8"/>
+                                <text x="42" y="94" fill="white" font-size="8" text-anchor="middle" font-weight="bold">100</text>
+                                <text x="62" y="92" fill="white" font-size="8" text-anchor="middle" font-weight="bold">112</text>
+                                <text x="82" y="85" fill="white" font-size="8" text-anchor="middle" font-weight="bold">136</text>
+                                <text x="102" y="87" fill="white" font-size="8" text-anchor="middle" font-weight="bold">130</text>
+                                <text x="122" y="79" fill="white" font-size="8" text-anchor="middle" font-weight="bold">157</text>
+                                <text x="142" y="71" fill="white" font-size="8" text-anchor="middle" font-weight="bold">186</text>
+                                <text x="162" y="56" fill="white" font-size="8" text-anchor="middle" font-weight="bold">239</text>
+                                <text x="182" y="68" fill="white" font-size="8" text-anchor="middle" font-weight="bold">196</text>
+                                <text x="202" y="53" fill="white" font-size="8" text-anchor="middle" font-weight="bold">248</text>
+                                <text x="222" y="38" fill="white" font-size="8" text-anchor="middle" font-weight="bold">303</text>
+                                <text x="242" y="31" fill="white" font-size="8" text-anchor="middle" font-weight="bold">326</text>
+                                <text x="42" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2015</text>
+                                <text x="82" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2017</text>
+                                <text x="122" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2019</text>
+                                <text x="162" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2021</text>
+                                <text x="202" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2023</text>
+                                <text x="242" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2025</text>
+                            </svg>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; padding: 0.75rem; background: rgba(70, 159, 173, 0.1); border-radius: 8px;">
+                            <div style="color: var(--success-green); font-weight: bold; margin-bottom: 0.25rem;">Total Return: 226%</div>
+                            <div style="color: var(--glow-teal); font-weight: bold;">10-Year CAGR: 12.6%</div>
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <h3 style="color: var(--glow-blue); text-align: center; margin-bottom: 0.5rem;">Russell 2000</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem; text-align: center; margin-bottom: 1rem;">U.S. Small Cap Stocks - 2,000 smaller American companies</p>
+                        <div class="performance-chart">
+                            <svg width="280" height="160" style="margin: 0.5rem 0;">
+                                <defs>
+                                    <linearGradient id="russell2000Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#469fad;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#00ffcc;stop-opacity:1" />
+                                    </linearGradient>
+                                    <marker id="russell2000arrow" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                                        <polygon points="0 0, 8 3, 0 6" fill="#00ff88" />
+                                    </marker>
+                                </defs>
+                                <!-- Grid lines -->
+                                <line x1="30" y1="20" x2="30" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <line x1="30" y1="130" x2="250" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <!-- Y-axis labels -->
+                                <text x="25" y="25" fill="var(--light-gray)" font-size="10" text-anchor="end">250</text>
+                                <text x="25" y="45" fill="var(--light-gray)" font-size="10" text-anchor="end">200</text>
+                                <text x="25" y="65" fill="var(--light-gray)" font-size="10" text-anchor="end">150</text>
+                                <text x="25" y="85" fill="var(--light-gray)" font-size="10" text-anchor="end">100</text>
+                                <text x="25" y="105" fill="var(--light-gray)" font-size="10" text-anchor="end">50</text>
+                                <text x="25" y="130" fill="var(--light-gray)" font-size="10" text-anchor="end">0</text>
+                                <!-- Column bars (proportional to 250 max) -->
+                                <rect x="35" y="88" width="15" height="42" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 100: 40% of 105px -->
+                                <rect x="55" y="79" width="15" height="51" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 121: 48% of 105px -->
+                                <rect x="75" y="74" width="15" height="56" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 134: 54% of 105px -->
+                                <rect x="95" y="78" width="15" height="52" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 123: 49% of 105px -->
+                                <rect x="115" y="68" width="15" height="62" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 148: 59% of 105px -->
+                                <rect x="135" y="59" width="15" height="71" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 168: 67% of 105px -->
+                                <rect x="155" y="51" width="15" height="79" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 188: 75% of 105px -->
+                                <rect x="175" y="64" width="15" height="66" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 156: 62% of 105px -->
+                                <rect x="195" y="57" width="15" height="73" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 173: 69% of 105px -->
+                                <rect x="215" y="44" width="15" height="86" fill="url(#russell2000Grad)" opacity="0.8"/>  <!-- 205: 82% of 105px -->
+                                <rect x="235" y="29" width="15" height="101" fill="url(#russell2000Grad)" opacity="0.8"/> <!-- 240: 96% of 105px -->
+                                
+                                <!-- Value labels ABOVE columns -->
+                                <text x="42" y="82" fill="white" font-size="8" text-anchor="middle" font-weight="bold">100</text>
+                                <text x="62" y="73" fill="white" font-size="8" text-anchor="middle" font-weight="bold">121</text>
+                                <text x="82" y="68" fill="white" font-size="8" text-anchor="middle" font-weight="bold">134</text>
+                                <text x="102" y="72" fill="white" font-size="8" text-anchor="middle" font-weight="bold">123</text>
+                                <text x="122" y="62" fill="white" font-size="8" text-anchor="middle" font-weight="bold">148</text>
+                                <text x="142" y="53" fill="white" font-size="8" text-anchor="middle" font-weight="bold">168</text>
+                                <text x="162" y="45" fill="white" font-size="8" text-anchor="middle" font-weight="bold">188</text>
+                                <text x="182" y="58" fill="white" font-size="8" text-anchor="middle" font-weight="bold">156</text>
+                                <text x="202" y="51" fill="white" font-size="8" text-anchor="middle" font-weight="bold">173</text>
+                                <text x="222" y="38" fill="white" font-size="8" text-anchor="middle" font-weight="bold">205</text>
+                                <text x="242" y="23" fill="white" font-size="8" text-anchor="middle" font-weight="bold">240</text>
+                                <!-- X-axis labels (fixed spacing) -->
+                                <text x="42" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2015</text>
+                                <text x="82" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2017</text>
+                                <text x="122" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2019</text>
+                                <text x="162" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2021</text>
+                                <text x="202" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2023</text>
+                                <text x="242" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2025</text>
+
+                            </svg>
+                        </div>
+                        <!-- Performance metrics below chart -->
+                        <div style="text-align: center; margin-top: 1rem; padding: 0.75rem; background: rgba(70, 159, 173, 0.1); border-radius: 8px;">
+                            <div style="color: var(--success-green); font-weight: bold; margin-bottom: 0.25rem;">Total Return: 140%</div>
+                            <div style="color: var(--glow-teal); font-weight: bold;">10-Year CAGR: 9.2%</div>
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <h3 style="color: var(--glow-blue); text-align: center; margin-bottom: 0.5rem;">MSCI EAFE</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem; text-align: center; margin-bottom: 1rem;">Developed Markets - Europe, Australia, and Far East</p>
+                        <div class="performance-chart">
+                            <svg width="280" height="160" style="margin: 0.5rem 0;">
+                                <defs>
+                                    <linearGradient id="eafeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#00488e;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#469fad;stop-opacity:1" />
+                                    </linearGradient>
+                                    <marker id="eafearrow" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                                        <polygon points="0 0, 8 3, 0 6" fill="#00ff88" />
+                                    </marker>
+                                </defs>
+                                <!-- Grid lines -->
+                                <line x1="30" y1="20" x2="30" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <line x1="30" y1="130" x2="250" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <!-- Y-axis labels -->
+                                <text x="25" y="25" fill="var(--light-gray)" font-size="10" text-anchor="end">250</text>
+                                <text x="25" y="45" fill="var(--light-gray)" font-size="10" text-anchor="end">200</text>
+                                <text x="25" y="65" fill="var(--light-gray)" font-size="10" text-anchor="end">150</text>
+                                <text x="25" y="85" fill="var(--light-gray)" font-size="10" text-anchor="end">100</text>
+                                <text x="25" y="105" fill="var(--light-gray)" font-size="10" text-anchor="end">50</text>
+                                <text x="25" y="130" fill="var(--light-gray)" font-size="10" text-anchor="end">0</text>
+                                <!-- Column bars (proportional to 250 max) -->
+                                <rect x="35" y="88" width="15" height="42" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 100: 40% of 105px -->
+                                <rect x="55" y="87" width="15" height="43" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 101: 40% of 105px -->
+                                <rect x="75" y="78" width="15" height="52" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 125: 50% of 105px -->
+                                <rect x="95" y="83" width="15" height="47" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 113: 45% of 105px -->
+                                <rect x="115" y="73" width="15" height="57" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 135: 54% of 105px -->
+                                <rect x="135" y="70" width="15" height="60" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 143: 57% of 105px -->
+                                <rect x="155" y="64" width="15" height="66" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 157: 63% of 105px -->
+                                <rect x="175" y="72" width="15" height="58" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 139: 56% of 105px -->
+                                <rect x="195" y="60" width="15" height="70" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 167: 67% of 105px -->
+                                <rect x="215" y="53" width="15" height="77" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 185: 74% of 105px -->
+                                <rect x="235" y="38" width="15" height="92" fill="url(#eafeGrad)" opacity="0.8"/>  <!-- 219: 88% of 105px -->
+                                
+                                <!-- Value labels ABOVE columns -->
+                                <text x="42" y="82" fill="white" font-size="8" text-anchor="middle" font-weight="bold">100</text>
+                                <text x="62" y="81" fill="white" font-size="8" text-anchor="middle" font-weight="bold">101</text>
+                                <text x="82" y="72" fill="white" font-size="8" text-anchor="middle" font-weight="bold">125</text>
+                                <text x="102" y="77" fill="white" font-size="8" text-anchor="middle" font-weight="bold">113</text>
+                                <text x="122" y="67" fill="white" font-size="8" text-anchor="middle" font-weight="bold">135</text>
+                                <text x="142" y="64" fill="white" font-size="8" text-anchor="middle" font-weight="bold">143</text>
+                                <text x="162" y="58" fill="white" font-size="8" text-anchor="middle" font-weight="bold">157</text>
+                                <text x="182" y="66" fill="white" font-size="8" text-anchor="middle" font-weight="bold">139</text>
+                                <text x="202" y="54" fill="white" font-size="8" text-anchor="middle" font-weight="bold">167</text>
+                                <text x="222" y="47" fill="white" font-size="8" text-anchor="middle" font-weight="bold">185</text>
+                                <text x="242" y="32" fill="white" font-size="8" text-anchor="middle" font-weight="bold">219</text>
+                                <!-- X-axis labels (fixed spacing) -->
+                                <text x="42" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2015</text>
+                                <text x="82" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2017</text>
+                                <text x="122" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2019</text>
+                                <text x="162" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2021</text>
+                                <text x="202" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2023</text>
+                                <text x="242" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2025</text>
+
+                            </svg>
+                        </div>
+                        <!-- Performance metrics below chart -->
+                        <div style="text-align: center; margin-top: 1rem; padding: 0.75rem; background: rgba(70, 159, 173, 0.1); border-radius: 8px;">
+                            <div style="color: var(--success-green); font-weight: bold; margin-bottom: 0.25rem;">Total Return: 119%</div>
+                            <div style="color: var(--glow-teal); font-weight: bold;">10-Year CAGR: 8.2%</div>
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <h3 style="color: var(--glow-blue); text-align: center; margin-bottom: 0.5rem;">MSCI Emerging Markets</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem; text-align: center; margin-bottom: 1rem;">Emerging Markets - Developing economies worldwide</p>
+                        <div class="performance-chart">
+                            <svg width="280" height="160" style="margin: 0.5rem 0;">
+                                <defs>
+                                    <linearGradient id="emGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#469fad;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#00ffcc;stop-opacity:1" />
+                                    </linearGradient>
+                                    <marker id="emarrow" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                                        <polygon points="0 0, 8 3, 0 6" fill="#00ff88" />
+                                    </marker>
+                                </defs>
+                                <!-- Grid lines -->
+                                <line x1="30" y1="20" x2="30" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <line x1="30" y1="130" x2="250" y2="130" stroke="rgba(70, 159, 173, 0.3)" stroke-width="1"/>
+                                <!-- Y-axis labels -->
+                                <text x="25" y="25" fill="var(--light-gray)" font-size="10" text-anchor="end">250</text>
+                                <text x="25" y="45" fill="var(--light-gray)" font-size="10" text-anchor="end">200</text>
+                                <text x="25" y="65" fill="var(--light-gray)" font-size="10" text-anchor="end">150</text>
+                                <text x="25" y="85" fill="var(--light-gray)" font-size="10" text-anchor="end">100</text>
+                                <text x="25" y="105" fill="var(--light-gray)" font-size="10" text-anchor="end">50</text>
+                                <text x="25" y="130" fill="var(--light-gray)" font-size="10" text-anchor="end">0</text>
+                                <!-- Column bars (proportional to 250 max) -->
+                                <rect x="35" y="88" width="15" height="42" fill="url(#emGrad)" opacity="0.8"/>  <!-- 100: 40% of 105px -->
+                                <rect x="55" y="83" width="15" height="47" fill="url(#emGrad)" opacity="0.8"/>  <!-- 111: 44% of 105px -->
+                                <rect x="75" y="76" width="15" height="54" fill="url(#emGrad)" opacity="0.8"/>  <!-- 128: 51% of 105px -->
+                                <rect x="95" y="82" width="15" height="48" fill="url(#emGrad)" opacity="0.8"/>  <!-- 114: 46% of 105px -->
+                                <rect x="115" y="74" width="15" height="56" fill="url(#emGrad)" opacity="0.8"/>  <!-- 133: 53% of 105px -->
+                                <rect x="135" y="69" width="15" height="61" fill="url(#emGrad)" opacity="0.8"/>  <!-- 146: 58% of 105px -->
+                                <rect x="155" y="67" width="15" height="63" fill="url(#emGrad)" opacity="0.8"/>  <!-- 150: 60% of 105px -->
+                                <rect x="175" y="77" width="15" height="53" fill="url(#emGrad)" opacity="0.8"/>  <!-- 126: 50% of 105px -->
+                                <rect x="195" y="73" width="15" height="57" fill="url(#emGrad)" opacity="0.8"/>  <!-- 137: 55% of 105px -->
+                                <rect x="215" y="65" width="15" height="65" fill="url(#emGrad)" opacity="0.8"/>  <!-- 156: 62% of 105px -->
+                                <rect x="235" y="43" width="15" height="87" fill="url(#emGrad)" opacity="0.8"/>  <!-- 205: 82% of 105px -->
+                                
+                                <!-- Value labels ABOVE columns -->
+                                <text x="42" y="82" fill="white" font-size="8" text-anchor="middle" font-weight="bold">100</text>
+                                <text x="62" y="77" fill="white" font-size="8" text-anchor="middle" font-weight="bold">111</text>
+                                <text x="82" y="70" fill="white" font-size="8" text-anchor="middle" font-weight="bold">128</text>
+                                <text x="102" y="76" fill="white" font-size="8" text-anchor="middle" font-weight="bold">114</text>
+                                <text x="122" y="68" fill="white" font-size="8" text-anchor="middle" font-weight="bold">133</text>
+                                <text x="142" y="63" fill="white" font-size="8" text-anchor="middle" font-weight="bold">146</text>
+                                <text x="162" y="61" fill="white" font-size="8" text-anchor="middle" font-weight="bold">150</text>
+                                <text x="182" y="71" fill="white" font-size="8" text-anchor="middle" font-weight="bold">126</text>
+                                <text x="202" y="67" fill="white" font-size="8" text-anchor="middle" font-weight="bold">137</text>
+                                <text x="222" y="59" fill="white" font-size="8" text-anchor="middle" font-weight="bold">156</text>
+                                <text x="242" y="37" fill="white" font-size="8" text-anchor="middle" font-weight="bold">205</text>
+                                <!-- X-axis labels (fixed spacing) -->
+                                <text x="42" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2015</text>
+                                <text x="82" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2017</text>
+                                <text x="122" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2019</text>
+                                <text x="162" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2021</text>
+                                <text x="202" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2023</text>
+                                <text x="242" y="145" fill="var(--light-gray)" font-size="9" text-anchor="middle">2025</text>
+
+                            </svg>
+                        </div>
+                        <!-- Performance metrics below chart -->
+                        <div style="text-align: center; margin-top: 1rem; padding: 0.75rem; background: rgba(70, 159, 173, 0.1); border-radius: 8px;">
+                            <div style="color: var(--success-green); font-weight: bold; margin-bottom: 0.25rem;">Total Return: 105%</div>
+                            <div style="color: var(--glow-teal); font-weight: bold;">10-Year CAGR: 7.4%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Date note and explanatory text at bottom of slide -->
+                <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: rgba(70, 159, 173, 0.1); border-radius: 10px; border: 1px solid rgba(70, 159, 173, 0.3);">
+                    <p style="margin: 0 0 0.5rem 0; color: var(--light-gray); font-size: 0.9rem; font-style: italic;">Data as of October 19, 2025</p>
+                    <p style="margin: 0; color: var(--light-gray); font-size: 0.85rem;">Charts show indexed performance for easy comparison, not absolute index prices</p>
+                </div>
+        
+                <div style="margin-top: 3rem; padding-bottom: 5rem; display: flex; align-items: center; gap: 0.6rem; justify-content: flex-start;">
+                    <img data-hex-logo alt="StratFinx Hex Logo" style="height: 36px; width: auto; opacity: 0.85;">
+                    <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">For informational purposes only – Not investment advice.</span>
+                </div>
+            </div>
+            <div class="slide-number">7</div>
+            <div style="position: absolute; bottom: 2rem; right: 2rem;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..." alt="StratFinx" style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>        
+
+        <!-- Slide 8: Our Investment Approach -->
+        <div class="slide" style="position: relative; overflow: hidden;">
+            <div class="slide-header">
+                <h1>Your Path to Financial Success</h1>
+            </div>
+
+            <div class="slide-content">
+                <div class="process-steps">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Discovery &amp; Goals</div>
+                        <p style="color: var(--light-gray);">
+                            We learn about your objectives, constraints, and risk tolerance
+                        </p>
+                    </div>
+
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Portfolio Design</div>
+                        <p style="color: var(--light-gray);">
+                            We craft a diversified strategy tailored to your needs
+                        </p>
+                    </div>
+
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Implementation</div>
+                        <p style="color: var(--light-gray);">
+                            We execute the plan using institutional-grade non-US-domiciled funds
+                        </p>
+                    </div>
+
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Monitoring &amp; Reporting</div>
+                        <p style="color: var(--light-gray);">
+                            We rebalance and communicate progress regularly
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ Footer identical in style to Slide 3 -->
+            <div style="position: absolute; bottom: 1.8rem; left: 2rem;
+                        display: flex; align-items: center; gap: 0.6rem; z-index: 5;">
+                <img data-hex-logo alt="StratFinx Hex Logo"
+                    style="height: 36px; width: auto; opacity: 0.85;">
+                <span style="font-size: 0.85rem; color: var(--light-gray); opacity: 0.8;">
+                    For informational purposes only – Not investment advice.
+                </span>
+            </div>
+
+            <div class="slide-number">8</div>
+
+            <div style="position: absolute; bottom: 2rem; right: 2rem; z-index: 4;">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                    alt="StratFinx"
+                    style="height: 60px; width: auto; opacity: 0.7;">
+            </div>
+        </div>
+
+        
+        <div class="navigation">
+            <button class="nav-btn" id="prev-btn" onclick="previousSlide()">← Previous</button>
+            <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide;
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentSlide === 1;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+
+        // Set dynamic date
+        function setCurrentDate() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            document.getElementById('presentation-date').textContent = formattedDate;
+        }
+
+        // Call it when page loads
+        setCurrentDate();
+
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Determine the logo for the bottom‑left placeholders.  By default we
+      // reuse the logo from the title slide.  To change the logo globally,
+      // modify logoSrc below or change the title slide logo.
+      const headerLogo = document.querySelector('img[alt="StratFinx Logo"]');
+      const logoSrc = headerLogo ? headerLogo.src : '';
+      document.querySelectorAll('.brand-logo').forEach(function(img) {
+        img.src = logoSrc;
+      });
+    });
+    </script>
+</body>
+</html>
